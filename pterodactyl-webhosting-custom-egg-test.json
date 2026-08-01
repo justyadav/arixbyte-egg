@@ -1,0 +1,12 @@
+﻿{
+  "meta": {"version": "PTDL_v2", "update_url": ""},
+  "name": "Test Minimal Egg",
+  "author": "ArixByte",
+  "description": "Minimal PTDL_v2 egg for import testing",
+  "docker_images": {"ghcr.io/arixbyte/pterodactyl-webhosting-panel:latest": "ArixByte"},
+  "startup": "bash ./start-panel.sh",
+  "config": {"files": {}, "startup": {"done": "Panel is running", "userInteraction": []}, "logs": {}},
+  "scripts": {},
+  "variables": [],
+  "deployable": true
+}\n
