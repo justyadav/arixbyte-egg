@@ -1,0 +1,12 @@
+version: '3.9'
+services:
+  api:
+    build: ./arixbyte-api
+    ports:
+      - '4000:4000'
+  web:
+    build: ./arixbyte-web
+    ports:
+      - '3000:3000'
+    environment:
+      NEXT_PUBLIC_API_URL: http://api:4000
