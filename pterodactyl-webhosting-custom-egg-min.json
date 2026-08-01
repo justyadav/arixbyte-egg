@@ -1,0 +1,22 @@
+﻿{
+  "meta": { "version": "PTDL_v2", "update_url": "" },
+  "name": "Minimal Webhosting Panel",
+  "author": "ArixByte",
+  "description": "Minimal egg for testing import compatibility (PTDL_v2)",
+  "docker_images": { "ghcr.io/arixbyte/pterodactyl-webhosting-panel:latest": "ArixByte" },
+  "startup": "bash ./start-panel.sh",
+  "config": {
+    "files": {
+      "start-panel.sh": { "parser": "bash", "find": "bash ./start-panel.sh", "startup": "bash ./start-panel.sh" },
+      "nginx.conf": { "parser": "nginx", "find": "server {", "startup": "nginx -g \"daemon off;\"" }
+    },
+    "startup": { "done": "Panel is running", "userInteraction": [] },
+    "logs": { "custom": "tail -n 100 /var/log/panel.log" }
+  },
+  "scripts": { "installation": { "script": "#!/bin/sh\n# minimal install script\necho install > /tmp/egg_install_marker" } },
+  "variables": [
+    { "name": "WEBROOT", "env_variable": "WEBROOT", "default_value": "public", "rules": "required|string", "user_viewable": true, "user_editable": true, "field_type": "text" }
+  ],
+  "deployable": true
+}
+
