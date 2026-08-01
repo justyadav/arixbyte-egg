@@ -2,7 +2,7 @@
   "meta": { "version": "PTDL_v2", "update_url": null },
   "exported_at": "2025-03-23T09:39:35+01:00",
   "name": "WebHost Egg (clean)",
-  "author": "info@djfinn.nl",
+  "author": "RAOPC@pc",
   "description": "Introducing a versatile hosting solution for any website!",
   "docker_images": {
     "PHP 8.4": "ghcr.io/sigma-production/nginx-ptero:8.4",
