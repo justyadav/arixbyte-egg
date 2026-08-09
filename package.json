@@ -1,5 +1,0 @@
-{
-  "name": "arixbyte-monorepo",
-  "private": true,
-  "workspaces": ["arixbyte-api", "arixbyte-web", "arixbyte-dashboard"]
-}
