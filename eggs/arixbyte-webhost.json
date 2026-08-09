@@ -1,1 +1,135 @@
-{"_comment":"DO NOT EDIT: FILE GENERATED AUTOMATICALLY BY PTERODACTYL PANEL - PTERODACTYL.IO","meta":{"version":"PTDL_v2","update_url":null},"exported_at":"2025-08-09T12:00:00+00:00","name":"Arixbyte WebHost Egg","author":"your-email@arixbyte.com","description":"Custom web hosting solution for Arixbyte with PHP/Nginx, Composer, Git auto-deploy, WordPress, and NamelessMC support.","features":null,"docker_images":{"PHP 8.4":"ghcr.io/justyadav/arixbyte-egg:8.4","PHP 8.3":"ghcr.io/justyadav/arixbyte-egg:8.3","PHP 8.2":"ghcr.io/justyadav/arixbyte-egg:8.2","PHP 8.1":"ghcr.io/justyadav/arixbyte-egg:8.1"},"file_denylist":[],"startup":"{{STARTUP_CMD}} && if [[ -n \"${COMPOSER_MODULES}\" ]]; then composer require \"${COMPOSER_MODULES}\" --working-dir=/home/container/webroot; fi && if [[ \"${AUTO_UPDATE}\" == \"1\" && -d /home/container/webroot/.git ]]; then cd /home/container/webroot && git pull; fi","config":{"files":"{\n    \"nginx/conf.d/default.conf\": {\n        \"parser\": \"file\",\n        \"find\": {\n            \"    listen \": \"    listen {{server.build.default.port}};\"\n        }\n    }\n}","startup":"{\n    \"done\": \"[SUCCESS] Web server is running. All services started successfully.\",\n    \"userInteraction\": []\n}","logs":"{\n    \"custom\": false,\n    \"location\": \"logs/latest.log\"\n}","stop":"^C & ^C"},"scripts":{"installation":{"script":"#!/bin/ash\n\n# Set working directory\ncd /mnt/server || exit 1\napk --update add git unzip curl || { echo \"Failed to install packages\"; exit 1; }\n\n# Clone Arixbyte's base configs\nif git clone https://github.com/justyadav/arixbyte-egg.git ./temp; then\n    cp -r ./temp/nginx ./temp/php-fpm ./temp/webroot ./temp/start.sh /mnt/server/\n    chmod +x /mnt/server/start.sh\n    rm -rf ./temp\nelse\n    echo \"Failed to clone repository\"; exit 1\nfi\n\n# Prepare directories\nmkdir -p /mnt/server/tmp /mnt/server/logs /mnt/server/webroot\n\n# WordPress installation\nif [ \"${WORDPRESS}\" = \"true\" ] || [ \"${WORDPRESS}\" = \"1\" ]; then\n    echo \"Installing WordPress...\"\n    cd /mnt/server/webroot || exit 1\n    curl -fLO https://wordpress.org/latest.zip && unzip latest.zip && mv wordpress/* . && rm -rf wordpress latest.zip\n    echo \"WordPress installed. Visit http://ip:port/wp-admin\"\n    exit 0\nfi\n\n# NamelessMC installation\nif [ \"${NAMELESSMC}\" = \"true\" ] || [ \"${NAMELESSMC}\" = \"1\" ]; then\n    echo \"Installing NamelessMC...\"\n    cd /mnt/server/webroot || exit 1\n    curl -L https://github.com/NamelessMC/Nameless/releases/latest/download/nameless-deps-dist.tar.xz | tar -xJ -C /mnt/server/webroot\n    cd /mnt/server/nginx/conf.d && rm -f default.conf\n    curl -LO https://raw.githubusercontent.com/justyadav/arixbyte-egg/main/nginx/conf.d/default.conf\n    exit 0\nfi\n\n# Git clone if address provided\nif [ -n \"${GIT_ADDRESS}\" ]; then\n    cd /mnt/server/webroot || exit 1\n    [ \"${GIT_ADDRESS##*.}\" != \"git\" ] && GIT_ADDRESS=\"${GIT_ADDRESS}.git\"\n    if [ -n \"${USERNAME}\" ] && [ -n \"${ACCESS_TOKEN}\" ]; then\n        GIT_ADDRESS=\"https://${USERNAME}:${ACCESS_TOKEN}@${GIT_ADDRESS#https://}\"\n    fi\n    if [ -n \"$(ls -A . 2>/dev/null)\" ]; then\n        echo \"Webroot not empty. Skipping clone.\"\n    else\n        if [ -n \"${BRANCH}\" ]; then\n            git clone --single-branch --branch \"${BRANCH}\" \"${GIT_ADDRESS}\" .\n        else\n            git clone \"${GIT_ADDRESS}\" .\n        fi\n    fi\nfi\n\necho \"Installation complete. Visit http://ip:port/\"","container":"alpine:latest","entrypoint":"ash"}},"variables":[{"name":"Startup Command","description":"Command to start the server (usually ./start.sh).","env_variable":"STARTUP_CMD","default_value":"./start.sh","user_viewable":true,"user_editable":true,"rules":"required|string","field_type":"text"},{"name":"WordPress","description":"Enable WordPress auto-install (0=off, 1=on).","env_variable":"WORDPRESS","default_value":"0","user_viewable":true,"user_editable":true,"rules":"required|boolean","field_type":"text"},{"name":"Composer Modules","description":"Space-separated Composer packages to install (e.g., 'laravel/laravel monolog/monolog').","env_variable":"COMPOSER_MODULES","default_value":"","user_viewable":true,"user_editable":true,"rules":"nullable|string","field_type":"text"},{"name":"Git Repo Address","description":"Git repository URL to clone (e.g., https://github.com/user/repo).","env_variable":"GIT_ADDRESS","default_value":"","user_viewable":true,"user_editable":true,"rules":"nullable|string","field_type":"text"},{"name":"Git Branch","description":"Branch to clone (leave empty for default branch).","env_variable":"BRANCH","default_value":"","user_viewable":true,"user_editable":true,"rules":"nullable|string","field_type":"text"},{"name":"Auto Update","description":"Auto-pull Git updates on each server start (0=off, 1=on).","env_variable":"AUTO_UPDATE","default_value":"0","user_viewable":true,"user_editable":true,"rules":"required|boolean","field_type":"text"},{"name":"User Uploaded Files","description":"Skip installation and assume user uploads files manually (0=off, 1=on).","env_variable":"USER_UPLOAD","default_value":"0","user_viewable":true,"user_editable":true,"rules":"required|boolean","field_type":"text"},{"name":"Git Username","description":"Username for private Git authentication.","env_variable":"USERNAME","default_value":"","user_viewable":true,"user_editable":true,"rules":"nullable|string","field_type":"text"},{"name":"Git Access Token","description":"Personal access token for Git authentication.","env_variable":"ACCESS_TOKEN","default_value":"","user_viewable":true,"user_editable":true,"rules":"nullable|string","field_type":"text"},{"name":"NamelessMC Install","description":"Install NamelessMC instead of WordPress (0=off, 1=on).","env_variable":"NAMELESSMC","default_value":"0","user_viewable":true,"user_editable":true,"rules":"required|boolean","field_type":"text"}]}
+{
+    "_comment": "DO NOT EDIT: FILE GENERATED AUTOMATICALLY BY PTERODACTYL PANEL - PTERODACTYL.IO",
+    "meta": {
+        "version": "PTDL_v2",
+        "update_url": null
+    },
+    "exported_at": "2025-08-09T12:00:00+00:00",
+    "name": "Arixbyte WebHost Egg",
+    "author": "your-email@arixbyte.com",
+    "description": "Custom web hosting solution for Arixbyte with PHP/Nginx, Composer, Git auto-deploy, WordPress, and NamelessMC support.",
+    "features": null,
+    "docker_images": {
+        "PHP 8.4": "ghcr.io/justyadav/arixbyte-egg:8.4",
+        "PHP 8.3": "ghcr.io/justyadav/arixbyte-egg:8.3",
+        "PHP 8.2": "ghcr.io/justyadav/arixbyte-egg:8.2",
+        "PHP 8.1": "ghcr.io/justyadav/arixbyte-egg:8.1"
+    },
+    "file_denylist": [],
+    "startup": "{{STARTUP_CMD}} && if [[ -n \"${COMPOSER_MODULES}\" ]]; then composer require \"${COMPOSER_MODULES}\" --working-dir=/home/container/webroot; fi && if [[ \"${AUTO_UPDATE}\" == \"1\" && -d /home/container/webroot/.git ]]; then cd /home/container/webroot && git pull; fi",
+    "config": {
+        "files": "{\n    \"nginx/conf.d/default.conf\": {\n        \"parser\": \"file\",\n        \"find\": {\n            \"    listen \": \"    listen {{server.build.default.port}};\"\n        }\n    }\n}",
+        "startup": "{\n    \"done\": \"[SUCCESS] Web server is running. All services started successfully.\",\n    \"userInteraction\": []\n}",
+        "logs": "{\n    \"custom\": false,\n    \"location\": \"logs/latest.log\"\n}",
+        "stop": "^C & ^C"
+    },
+    "scripts": {
+        "installation": {
+            "script": "#!/bin/ash\n\n# Set working directory\ncd /mnt/server || exit 1\napk --update add git unzip curl || { echo \"Failed to install packages\"; exit 1; }\n\n# Clone Arixbyte's base configs\nif git clone https://github.com/justyadav/arixbyte-egg.git ./temp; then\n    cp -r ./temp/nginx ./temp/php-fpm ./temp/webroot ./temp/start.sh /mnt/server/\n    chmod +x /mnt/server/start.sh\n    rm -rf ./temp\nelse\n    echo \"Failed to clone repository\"; exit 1\nfi\n\n# Prepare directories\nmkdir -p /mnt/server/tmp /mnt/server/logs /mnt/server/webroot\n\n# WordPress installation\nif [ \"${WORDPRESS}\" = \"true\" ] || [ \"${WORDPRESS}\" = \"1\" ]; then\n    echo \"Installing WordPress...\"\n    cd /mnt/server/webroot || exit 1\n    curl -fLO https://wordpress.org/latest.zip && unzip latest.zip && mv wordpress/* . && rm -rf wordpress latest.zip\n    echo \"WordPress installed. Visit http://ip:port/wp-admin\"\n    exit 0\nfi\n\n# NamelessMC installation\nif [ \"${NAMELESSMC}\" = \"true\" ] || [ \"${NAMELESSMC}\" = \"1\" ]; then\n    echo \"Installing NamelessMC...\"\n    cd /mnt/server/webroot || exit 1\n    curl -L https://github.com/NamelessMC/Nameless/releases/latest/download/nameless-deps-dist.tar.xz | tar -xJ -C /mnt/server/webroot\n    cd /mnt/server/nginx/conf.d && rm -f default.conf\n    curl -LO https://raw.githubusercontent.com/justyadav/arixbyte-egg/main/nginx/conf.d/default.conf\n    exit 0\nfi\n\n# Git clone if address provided\nif [ -n \"${GIT_ADDRESS}\" ]; then\n    cd /mnt/server/webroot || exit 1\n    [ \"${GIT_ADDRESS##*.}\" != \"git\" ] && GIT_ADDRESS=\"${GIT_ADDRESS}.git\"\n    if [ -n \"${USERNAME}\" ] && [ -n \"${ACCESS_TOKEN}\" ]; then\n        GIT_ADDRESS=\"https://${USERNAME}:${ACCESS_TOKEN}@${GIT_ADDRESS#https://}\"\n    fi\n    if [ -n \"$(ls -A . 2>/dev/null)\" ]; then\n        echo \"Webroot not empty. Skipping clone.\"\n    else\n        if [ -n \"${BRANCH}\" ]; then\n            git clone --single-branch --branch \"${BRANCH}\" \"${GIT_ADDRESS}\" .\n        else\n            git clone \"${GIT_ADDRESS}\" .\n        fi\n    fi\nfi\n\necho \"Installation complete. Visit http://ip:port/\"",
+            "container": "alpine:latest",
+            "entrypoint": "ash"
+        }
+    },
+    "variables": [
+        {
+            "name": "Startup Command",
+            "description": "Command to start the server (usually ./start.sh).",
+            "env_variable": "STARTUP_CMD",
+            "default_value": "./start.sh",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string",
+            "field_type": "text"
+        },
+        {
+            "name": "WordPress",
+            "description": "Enable WordPress auto-install (0=off, 1=on).",
+            "env_variable": "WORDPRESS",
+            "default_value": "0",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|boolean",
+            "field_type": "text"
+        },
+        {
+            "name": "Composer Modules",
+            "description": "Space-separated Composer packages to install (e.g., 'laravel/laravel monolog/monolog').",
+            "env_variable": "COMPOSER_MODULES",
+            "default_value": "",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "nullable|string",
+            "field_type": "text"
+        },
+        {
+            "name": "Git Repo Address",
+            "description": "Git repository URL to clone (e.g., https://github.com/user/repo).",
+            "env_variable": "GIT_ADDRESS",
+            "default_value": "",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "nullable|string",
+            "field_type": "text"
+        },
+        {
+            "name": "Git Branch",
+            "description": "Branch to clone (leave empty for default branch).",
+            "env_variable": "BRANCH",
+            "default_value": "",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "nullable|string",
+            "field_type": "text"
+        },
+        {
+            "name": "Auto Update",
+            "description": "Auto-pull Git updates on each server start (0=off, 1=on).",
+            "env_variable": "AUTO_UPDATE",
+            "default_value": "0",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|boolean",
+            "field_type": "text"
+        },
+        {
+            "name": "User Uploaded Files",
+            "description": "Skip installation and assume user uploads files manually (0=off, 1=on).",
+            "env_variable": "USER_UPLOAD",
+            "default_value": "0",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|boolean",
+            "field_type": "text"
+        },
+        {
+            "name": "Git Username",
+            "description": "Username for private Git authentication.",
+            "env_variable": "USERNAME",
+            "default_value": "",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "nullable|string",
+            "field_type": "text"
+        },
+        {
+            "name": "Git Access Token",
+            "description": "Personal access token for Git authentication.",
+            "env_variable": "ACCESS_TOKEN",
+            "default_value": "",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "nullable|string",
+            "field_type": "text"
+        },
+        {
+            "name": "NamelessMC Install",
+            "description": "Install NamelessMC instead of WordPress (0=off, 1=on).",
+            "env_variable": "NAMELESSMC",
+            "default_value": "0",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|boolean",
+            "field_type": "text"
+        }
+    ]
+}
