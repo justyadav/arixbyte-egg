@@ -10,9 +10,6 @@
     "description": "Custom web hosting solution for Arixbyte with PHP/Nginx, Composer, Git auto-deploy, WordPress, and NamelessMC support.",
     "features": null,
     "docker_images": {
-        "PHP 8.4": "ghcr.io/justyadav/arixbyte-egg:8.4",
-        "PHP 8.3": "ghcr.io/justyadav/arixbyte-egg:8.3",
-        "PHP 8.2": "ghcr.io/justyadav/arixbyte-egg:8.2",
         "PHP 8.1": "ghcr.io/justyadav/arixbyte-egg:8.1"
     },
     "file_denylist": [],
