@@ -1,10 +1,8 @@
-name: Build and Publish Docker Images
+name: Build and Publish Docker Image
 
-# Trigger the workflow on push to the main branch
 on:
   push:
     branches: [ "main" ]
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
 env:
@@ -14,29 +12,18 @@ env:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-    # Sets the permissions granted to the GITHUB_TOKEN for the actions in this job
     permissions:
       contents: read
       packages: write
       id-token: write
 
-    # Use a matrix to build all PHP versions in parallel
-    strategy:
-      fail-fast: false
-      matrix:
-        php-version: [8.1, 8.2, 8.3, 8.4]
-
     steps:
-      # 1. Checkout the repository code
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2. Set up Docker Buildx for advanced features like caching
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      # 3. Log in to GitHub Container Registry
-      #    Uses the automatically generated GITHUB_TOKEN for authentication
       - name: Log in to the Container registry
         uses: docker/login-action@v3
         with:
@@ -44,25 +31,22 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # 4. Extract metadata (tags, labels) for the Docker image
       - name: Extract Docker metadata
         id: meta
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=raw,value=${{ matrix.php-version }}
-            type=raw,value=latest-${{ matrix.php-version }}
+            type=raw,value=8.1
+            type=raw,value=latest
 
-      # 5. Build and push the Docker image to GHCR
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: ./docker/${{ matrix.php-version }}/Dockerfile
+          file: ./docker/8.1/Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          # Enable caching for faster builds
           cache-from: type=gha
           cache-to: type=gha,mode=max
